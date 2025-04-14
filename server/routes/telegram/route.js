@@ -20,7 +20,9 @@ router.post("/submit-contact", async (req, res) => {
     const { name, email, packages, project, budget } = req.body;
 
     if (!name || !email || !packages || !project || !budget) {
-      return res.status(400).json({ success: false, error: "All fields are required." });
+      return res
+        .status(400)
+        .json({ success: false, error: "All fields are required." });
     }
 
     const message = `

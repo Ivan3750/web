@@ -15,8 +15,8 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ 
-  storage, 
+const upload = multer({
+  storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // Обмеження 10MB
   fileFilter: (req, file, cb) => {
     const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
@@ -24,15 +24,16 @@ const upload = multer({
       return cb(new Error("Only images are allowed"));
     }
     cb(null, true);
-  }
+  },
 });
-
 
 // 📌 Отримання одного блогу за ID
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const [rows] = await db.query("SELECT * FROM blog_posts WHERE id = ?", [id]);
+    const [rows] = await db.query("SELECT * FROM blog_posts WHERE id = ?", [
+      id,
+    ]);
     if (rows.length === 0) {
       return res.status(404).json({ message: "Blog post not found" });
     }
@@ -43,11 +44,12 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-
 // 📌 Отримання всіх блогів
 router.get("/", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT id, title, cover_image, description, created_at	 FROM blog_posts ORDER BY created_at DESC");
+    const [rows] = await db.query(
+      "SELECT id, title, cover_image, description, created_at	 FROM blog_posts ORDER BY created_at DESC"
+    );
     res.json(rows);
   } catch (error) {
     console.error("Error fetching blog posts:", error);
@@ -56,33 +58,44 @@ router.get("/", async (req, res) => {
 });
 
 // 📌 **Створення блогу (POST /api/blogPosts)**
-router.post("/", upload.fields([{ name: "image" }, { name: "video" }]), async (req, res) => {
+router.post(
+  "/",
+  upload.fields([{ name: "image" }, { name: "video" }]),
+  async (req, res) => {
+    const {
+      title,
+      content,
+      description,
+      seo_title,
+      seo_description,
+      seo_keywords,
+      cover_image,
+    } = req.body;
 
-  const { title, content, description, seo_title, seo_description, seo_keywords, cover_image } = req.body;
+    if (!title || !content || !description) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
-  if (!title || !content || !description) {
-    return res.status(400).json({ message: "All fields are required" });
+    try {
+      await db.query(
+        "INSERT INTO blog_posts (title, content, description, seo_title, seo_description, seo_keywords, cover_image) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [
+          title,
+          content,
+          description,
+          seo_title,
+          seo_description,
+          seo_keywords,
+          cover_image,
+        ]
+      );
+
+      res.status(201).json({ message: "Blog post created successfully" });
+    } catch (error) {
+      console.error("Error inserting blog post:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
   }
-
-
-
-  try {
-    await db.query(
-      "INSERT INTO blog_posts (title, content, description, seo_title, seo_description, seo_keywords, cover_image) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [title, content, description, seo_title, seo_description, seo_keywords, cover_image]
-    );
-
-    res.status(201).json({ message: "Blog post created successfully" });
-  } catch (error) {
-    console.error("Error inserting blog post:", error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-});
-
-
-
-
-
-
+);
 
 module.exports = router;
