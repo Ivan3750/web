@@ -24,7 +24,7 @@ app.use(
 app.use("/uploads", express.static("uploads"));
 
 // Використовуємо ваші маршрути
-app.use("/blogs", blogsRoute);
+app.use("/blog", blogsRoute);
 app.use("/project", projectsRoute);
 app.use("/telegram", telegramRoute);
 
