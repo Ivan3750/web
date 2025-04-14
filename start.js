@@ -12,13 +12,19 @@ const telegramRoute = require("./server/routes/telegram/route");
 // Middleware
 app.use(express.json()); // Для обробки JSON запитів
 app.use(express.urlencoded({ extended: true })); // Для обробки даних з форм
+app.use(
+  cors({
+    origin: "*", // або твій фронтенд домен
+    methods: ["GET", "POST"],
+  })
+);
 
 // Статичні файли
 app.use("/uploads", express.static("uploads"));
 
 // Використовуємо ваші маршрути
 app.use("/blogs", blogsRoute);
-app.use("/projects", projectsRoute);
+app.use("/project", projectsRoute);
 app.use("/telegram", telegramRoute);
 
 // Запуск сервера

@@ -2,7 +2,7 @@ const express = require("express");
 const db = require("../../db");
 const router = express.Router();
 
-router.get("/project/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
   const { id } = req.params; // Отримуємо id з параметрів URL
 
   try {
