@@ -17,9 +17,9 @@ router.post("/submit-contact", async (req, res) => {
   try {
     const fetch = (await import("node-fetch")).default; // Динамічний імпорт
 
-    const { name, email, packages, project, budget } = req.body;
+    const { name, email, project, } = req.body;
 
-    if (!name || !email || !packages || !project || !budget) {
+    if (!name || !email || !project) {
       return res
         .status(400)
         .json({ success: false, error: "All fields are required." });
@@ -27,11 +27,9 @@ router.post("/submit-contact", async (req, res) => {
 
     const message = `
       📩 New Contact Form Submission:
-      🏷 Name: ${name}
+      🙋 Name: ${name}
       📧 Email: ${email}
-      📦 Package: ${packages}
       💡 Project: ${project}
-      💰 Budget: ${budget} DKK
     `;
 
     const response = await fetch(TELEGRAM_API_URL, {
