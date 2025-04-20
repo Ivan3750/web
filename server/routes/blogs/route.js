@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // Обмеження 10MB
+  limits: { fileSize: 100 * 1024 * 1024 }, // Обмеження 10MB
   fileFilter: (req, file, cb) => {
     const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
     if (!allowedTypes.includes(file.mimetype)) {
@@ -48,7 +48,7 @@ router.get("/:id", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const [rows] = await db.query(
-      "SELECT id, title, cover_image, description, created_at	 FROM blog_posts ORDER BY created_at DESC"
+      "SELECT id, title, cover_image, description, created_at,	category FROM blog_posts ORDER BY created_at DESC"
     );
     res.json(rows);
   } catch (error) {
@@ -70,6 +70,7 @@ router.post(
       seo_description,
       seo_keywords,
       cover_image,
+      category,
     } = req.body;
 
     if (!title || !content || !description) {
@@ -78,7 +79,7 @@ router.post(
 
     try {
       await db.query(
-        "INSERT INTO blog_posts (title, content, description, seo_title, seo_description, seo_keywords, cover_image) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO blog_posts (title, content, description, seo_title, seo_description, seo_keywords, cover_image, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
         [
           title,
           content,
@@ -87,6 +88,7 @@ router.post(
           seo_description,
           seo_keywords,
           cover_image,
+          category,
         ]
       );
 
