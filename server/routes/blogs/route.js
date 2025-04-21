@@ -2,7 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const db = require("../../db");
-
+const moment = require("moment-timezone");
 const router = express.Router();
 
 // 📌 Налаштування multer для завантаження фото
@@ -48,9 +48,18 @@ router.get("/:id", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const [rows] = await db.query(
-      "SELECT id, title, cover_image, description, created_at,	category FROM blog_posts ORDER BY created_at DESC"
+      "SELECT id, title, cover_image, description, created_at, category FROM blog_posts ORDER BY created_at DESC"
     );
-    res.json(rows);
+
+    // Поточна дата та час у часовому поясі Данії
+    const nowInDenmark = moment().tz("Europe/Copenhagen");
+
+    // Фільтруємо ті, що мають дату у майбутньому
+    const filteredRows = rows.filter((row) =>
+      moment(row.created_at).isSameOrBefore(nowInDenmark)
+    );
+
+    res.json(filteredRows);
   } catch (error) {
     console.error("Error fetching blog posts:", error);
     res.status(500).json({ message: "Internal Server Error" });
